@@ -1,7 +1,7 @@
 # BBD HUNTER — Decision Log
 
 > Purpose: append-only history of architectural and product decisions. Never edit or delete an old entry. To change a decision, add a new entry at the bottom and mark the old one "Superseded by D-###".
-> Last updated: 2026-09-21 · Memory layer V0.1
+> Last updated: 2026-09-26 · Memory layer V0.1
 
 **Provenance.** D-001 to D-010 and D-012 come from the user's Master Project Instructions. Their original decision dates are `[UNKNOWN]`, so they carry the day they were first recorded here (2026-09-21). D-011 comes from the Project Memory Layer V0.1 brief. "Alternatives considered" is filled in only where the source states one; otherwise the entry says so. "Consequences" are expected implications, some labelled *architect note*.
 
@@ -104,6 +104,50 @@ Status values: Accepted · Proposed · Superseded by D-###
 - **Reason**: Stated: performance is a major project requirement, especially in sale events.
 - **Alternatives considered**: Not recorded. Excluded by instruction: repeatedly launching browsers; scanning everything when exact identifiers are known.
 - **Consequences**: Collectors need scheduling with caching and incremental updates. Browser lifecycle needs managing. UI updates need batching. Hunt Mode depends on all of this (OQ-2, OQ-8).
+
+---
+
+*Entries above this line (D-001 to D-012) were recorded from the Master Project Instructions before any code existed. Entries below were recorded while building the V0.1 implementation itself.*
+
+## D-013 — SQLModel, JSON column for list fields, no migrations yet
+- **Date**: 2026-09-26
+- **Status**: Accepted
+- **Decision**: The backend uses **SQLModel** (combines SQLAlchemy + Pydantic) rather than plain SQLAlchemy + separate Pydantic schemas. One shared `WishlistBase` class defines the fields once; `Wishlist` (the table), `WishlistCreate`, `WishlistUpdate`, and `WishlistRead` each inherit from it and override only what differs. `preferred_brands` (a list of strings) is stored as a JSON column, since SQLite has no native array type — but the JSON column config lives *only* on the `Wishlist` table class, not on the shared base, so it doesn't leak into the non-table schemas. There is no migration tool yet; `SQLModel.metadata.create_all()` creates tables directly from the model classes.
+- **Reason**: SQLModel avoids duplicating ~12 fields across four near-identical classes, which is exactly the kind of duplication `MEMORY_PROTOCOL.md`'s spirit and the Master Instructions' "avoid unnecessary abstraction" / "prefer clear code" guidance argue against. A migration tool is real infrastructure that isn't worth adding before there's a second model or real user data to preserve across schema changes.
+- **Alternatives considered**: Plain SQLAlchemy with hand-written Pydantic schemas (more boilerplate, rejected for V0.1's scale). Alembic from day one (rejected as premature for a single table with no real data at stake yet — deliberately deferred, see OQ-5 in ARCHITECTURE.md).
+- **Consequences**: Schema changes during development are handled by deleting the local `database/bbd_hunter.db` and letting it regenerate — documented in `database/README.md` and code comments. A real migration tool must be introduced before this project has data worth preserving across a schema change.
+
+## D-014 — Wishlist PUT uses partial-update semantics
+- **Date**: 2026-09-26
+- **Status**: Accepted
+- **Decision**: `PUT /api/wishlists/{id}` only changes fields present in the request body; omitted fields keep their existing value. Strict REST convention reserves this behavior for PATCH and has PUT replace the whole resource.
+- **Reason**: The V0.1 implementation brief specified `PUT /api/wishlists/{id}` as one of the minimum CRUD endpoints (not PATCH), but a wishlist-editing UI needs "change one field, leave the rest" behavior to be usable. Documented explicitly (in the endpoint's own docstring and here) so the deviation from convention is a visible choice, not a silent bug.
+- **Alternatives considered**: Implementing strict PUT-replaces-everything semantics (rejected: would force every future edit request to resend the entire record). Adding a separate PATCH endpoint alongside a strict PUT (rejected as unnecessary duplication for V0.1's scope; can be added later if a real need for strict replace shows up).
+- **Consequences**: Anyone integrating with this API from outside this project needs to know PUT here is partial, not a full replace — worth calling out if the API is ever exposed beyond this app's own frontend.
+
+## D-015 — Tests live next to their code, not in a shared root `tests/`
+- **Date**: 2026-09-26
+- **Status**: Accepted
+- **Decision**: Backend tests live in `backend/tests/` (pytest); frontend tests are colocated with their source files under `frontend/src/` (e.g. `App.test.tsx` next to `App.tsx`), the standard Vitest convention. The root `tests/` folder from the V0.1 implementation brief's target tree holds only a README explaining this split, reserved for future cross-system tests.
+- **Reason**: Backend tests need to sit inside `backend/` so `app` is importable without installing the project as a package (`backend/pytest.ini` adds that one directory to the import path). Frontend tests colocated with source is how Vitest projects are conventionally organized, and keeps a component and its test easy to find together. A literal root `tests/` folder would otherwise sit empty, which the V0.1 brief itself says to avoid ("do not create unnecessary empty files just to match this tree").
+- **Alternatives considered**: A literal root `tests/` folder holding all tests for both frontend and backend (rejected: breaks the natural import/tooling setup for both pytest and Vitest, for no real benefit).
+- **Consequences**: Someone looking for "all the tests" needs to know to check two locations, not one — mitigated by `tests/README.md` pointing to both, and by this decision record.
+
+## D-016 — Conservative frontend dependency choices given no network access to verify them
+- **Date**: 2026-09-26
+- **Status**: Accepted
+- **Decision**: The frontend uses **Tailwind CSS v3** (PostCSS-based config) rather than v4 (CSS-first config, different plugin architecture), and does **not** include Framer Motion as a V0.1 dependency, relying on Tailwind transitions and a couple of CSS keyframes for the dashboard's few subtle animations instead.
+- **Reason**: This code was written in a sandboxed environment with no network access (confirmed: both `pip` and `npm` registry requests failed), so no dependency's exact current API could be verified by actually installing and running it. Tailwind v3's setup is long-established and well-understood; a mistake in recalling Tailwind v4's newer API would break the entire frontend build, which is a worse failure mode than "using an older but definitely-correct major version." The V0.1 implementation brief itself only lists "Tailwind CSS if practical" and "Lucide icons if practical," without mentioning Framer Motion, and V0.1's dashboard doesn't yet have complex animation choreography (like Hunt Mode transitions) that would clearly justify the added dependency.
+- **Alternatives considered**: Tailwind v4 (rejected for this reason: higher risk of an unverifiable, build-breaking mistake, for a version-number benefit that doesn't matter functionally yet). Including Framer Motion anyway, matching the original Master Instructions' stack list (rejected for V0.1 specifically, as an unnecessary dependency for what the dashboard currently needs; trivial to add later).
+- **Consequences**: The frontend is on an older major Tailwind version than may be "current" by the time this is read; upgrading later is a normal, well-documented migration, not a rewrite. If a future version's motion needs grow past what CSS transitions/keyframes comfortably express, add Framer Motion then rather than now.
+
+## D-017 — V0.1 visual design system: warm charcoal + amber, not the generic dark-mode default
+- **Date**: 2026-09-26
+- **Status**: Accepted
+- **Decision**: The dashboard uses a warm dark charcoal background (not pure/blue-black), **amber/gold** as the single primary interactive accent, and two additional colors used *only* for functional price-signal meaning (a muted green for positive/price-drop, a muted rust for negative/price-rise) — never as decoration. Typography is IBM Plex Sans for UI text and IBM Plex Mono reserved specifically for numeric data (prices, specs), never for decorative labels.
+- **Reason**: A near-black background with a single bright green or vermilion accent is one of the most common AI-generated-design patterns, called out explicitly as a cliché to avoid. Amber was chosen instead as a deliberate reference to real trading-terminal visual heritage (Bloomberg Terminal's black-and-amber displays), which the brief's own words ("stock-trading terminal") justify directly, rather than an arbitrary color choice — and separately, gold/amber carries a "value" association relevant to a deal-hunting tool.
+- **Alternatives considered**: The near-black + green/vermilion pattern initially drafted, then deliberately rejected once recognized as the common generic default. A cooler blue/teal "HUD" palette was also considered and set aside in favor of the more specifically-grounded amber-terminal reference.
+- **Consequences**: Every new UI surface added later should route color choices through the same three-color functional system (`tailwind.config.js`'s `signal.amber` / `signal.positive` / `signal.negative`) rather than introducing new decorative colors, to keep the "restraint, one bold element" principle intact as the dashboard grows.
 
 ---
 

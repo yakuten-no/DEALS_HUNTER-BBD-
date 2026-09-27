@@ -1,7 +1,7 @@
 # BBD HUNTER — Roadmap
 
 > Purpose: planned development phases. Near-term work is kept separate from future ideas.
-> Last updated: 2026-09-21 · Memory layer V0.1
+> Last updated: 2026-09-26 · Memory layer V0.1
 > Only **V0.1** is defined by the user. Phases after V0.1 are a **draft ordering** derived from the Master Instructions and need the user's approval (TODO T-040).
 
 ## Principles for sequencing
@@ -13,9 +13,9 @@
 
 ### V0.1 — Foundation (defined by the user)
 - **Scope**: repository structure · frontend shell · backend shell · database shell · configuration system · premium dashboard UI · health/status endpoint · basic wishlist model · development documentation.
-- **Out of scope**: full scraping, checkout automation.
-- **Status**: `[UNKNOWN]` (see `CURRENT_STATE.md`). The project memory layer is done (2026-09-21).
-- **Proposed acceptance criteria** *[draft]*: frontend and backend start on Windows with documented commands; the health/status endpoint responds; a wishlist item can be created and persisted in SQLite; `.env.example` exists and no secrets are committed; the dashboard shell renders; setup docs give exact install commands; basic tests run.
+- **Out of scope**: full scraping, checkout automation. Neither was built — confirmed true.
+- **Status**: `[BUILT]`, 2026-09-26 — written and passed offline static checks, but not yet confirmed by an actual run (no network access in the build environment; see `CURRENT_STATE.md`). Running it for real is TODO T-003, the top open item right now.
+- **Acceptance criteria** (updated from "proposed" now that the scope is built; still to be *confirmed*, not yet confirmed): frontend and backend start with documented commands (Windows and macOS/Linux both given in the root `README.md`); the health/status endpoint responds with a real database check; a wishlist item can be created and persisted in SQLite; `.env.example` files exist for both backend and frontend and no secrets are committed; the dashboard renders with a working hunt input, wishlist panel, live system status, honest empty deal feed, and activity log; 18 backend + 8 frontend tests exist and are expected to pass once actually run.
 
 ## Next (draft, not yet approved)
 

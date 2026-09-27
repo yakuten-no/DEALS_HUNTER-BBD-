@@ -1,32 +1,32 @@
 # BBD HUNTER — Requirements
 
 > Purpose: functional and non-functional requirements, separated into implemented / planned / experimental / explicitly out of scope.
-> Last updated: 2026-09-21 · Memory layer V0.1
+> Last updated: 2026-09-26 · Memory layer V0.1
 > Source: the Master Project Instructions and the Project Memory Layer V0.1 brief. The split into "planned" vs "experimental" is a **proposed classification** (the user has not labelled anything experimental) — confirm or change it.
 
-Status tags: `[VERIFIED]` `[PLANNED]` `[UNVERIFIED]` `[UNKNOWN]` (see `MEMORY_PROTOCOL.md`).
+Status tags: `[VERIFIED]` confirmed by actually running it · `[BUILT]` written and passed offline static checks but not yet run live · `[PLANNED]` intended, not built · `[UNVERIFIED]` believed, not checked · `[UNKNOWN]` no information (see `MEMORY_PROTOCOL.md`).
 
 ## 1. Implemented
-**None verified.** No application code was available to inspect on 2026-09-21. When the repository is inspected, move confirmed items here with a pointer to the implementing file and its tests.
+**Still none formally `[VERIFIED]`** — nothing has been run live yet (see `CURRENT_STATE.md`). V0.1's scope (2.1 below) is now `[BUILT]`: written and passed offline static checks (Python syntax, TypeScript/TSX syntax, cross-file import resolution), but not yet confirmed by actually installing and running it. Move items from 2.1 to this section once a live run confirms them — that's TODO T-003.
 
-Implemented outside the application: `project-memory/` (this memory layer), 2026-09-21.
+Implemented outside the application: `project-memory/` (this memory layer), first created 2026-09-21, updated 2026-09-26.
 
 ## 2. Planned
 
-### 2.1 V0.1 scope (defined by the user)
-| ID | Requirement | Status |
-|---|---|---|
-| R-V01-1 | Repository structure | `[UNVERIFIED]` |
-| R-V01-2 | Frontend shell | `[UNVERIFIED]` |
-| R-V01-3 | Backend shell | `[UNVERIFIED]` |
-| R-V01-4 | Database shell | `[UNVERIFIED]` |
-| R-V01-5 | Configuration system (environment variables, `.env.example`) | `[UNVERIFIED]` |
-| R-V01-6 | Premium dashboard UI | `[UNVERIFIED]` |
-| R-V01-7 | Health/status endpoint | `[UNVERIFIED]` |
-| R-V01-8 | Basic wishlist model | `[UNVERIFIED]` |
-| R-V01-9 | Development documentation | `[UNVERIFIED]` |
+### 2.1 V0.1 scope (defined by the user) — now `[BUILT]`, pending a live run (T-003)
+| ID | Requirement | Status | Where |
+|---|---|---|---|
+| R-V01-1 | Repository structure | `[BUILT]` | see `ARCHITECTURE.md` §12 for the real tree |
+| R-V01-2 | Frontend shell | `[BUILT]` | `frontend/` |
+| R-V01-3 | Backend shell | `[BUILT]` | `backend/app/main.py` |
+| R-V01-4 | Database shell | `[BUILT]` | `backend/app/database.py`, `database/` |
+| R-V01-5 | Configuration system (environment variables, `.env.example`) | `[BUILT]` | `backend/app/config.py`, `backend/.env.example`, `frontend/.env.example` |
+| R-V01-6 | Premium dashboard UI | `[BUILT]` | `frontend/src/App.tsx` and `frontend/src/components/`; design reasoning in D-017 |
+| R-V01-7 | Health/status endpoint | `[BUILT]` | `backend/app/routers/health.py` — a real DB check, not hardcoded |
+| R-V01-8 | Basic wishlist model | `[BUILT]`, more than "basic" (full CRUD) | `backend/app/models/wishlist.py` |
+| R-V01-9 | Development documentation | `[BUILT]` | root `README.md` |
 
-Not in V0.1: full scraping, checkout automation.
+Not in V0.1: full scraping, checkout automation. Neither was implemented — confirmed true.
 
 ### 2.2 Functional requirements (phase TBD unless stated)
 

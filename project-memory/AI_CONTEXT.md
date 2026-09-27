@@ -1,75 +1,64 @@
 # BBD HUNTER — AI Context (read this first)
 
-> Primary handoff file for any AI agent. Keep it short (aim for ~120 lines or fewer); put detail in the other `project-memory/` files.
-> Last updated: 2026-09-21 (session date; container UTC clock read 2026-09-20T22:25Z) · Memory layer version: V0.1
+> Primary handoff file for any AI agent. Keep it short (~120 lines); put detail in the other `project-memory/` files.
+> Last updated: 2026-09-26 · Memory layer V0.1
 
-**STATE CONFIDENCE: LOW.** This memory layer was created in a session that had **no access to the BBD HUNTER repository** (no repo, uploads, or earlier transcripts were present). Everything below about code is `[UNVERIFIED]`. If you can see the repository, inspect it first and reconcile these files (TODO T-001; `MEMORY_PROTOCOL.md` rule 14). Do not trust this file over the code.
+**STATE CONFIDENCE: MEDIUM.** The repository now exists and this file was written from direct inspection of it (not guessed). What's unverified is *runtime behavior*: this was built with no network access, so nothing has actually been installed or run yet. Read `CURRENT_STATE.md` for the full picture before assuming anything below still holds — code changes fast, this file can drift.
 
-Status tags: `[VERIFIED]` confirmed by inspecting or running the repo · `[PLANNED]` intended, not built · `[UNVERIFIED]` believed, not checked · `[UNKNOWN]` no information.
+Status tags: `[VERIFIED]` confirmed by running it · `[BUILT]` written and passed offline static checks but not run live · `[PLANNED]` intended, not built · `[UNKNOWN]` no information.
 
 ## 1. What BBD HUNTER is
-A local-first AI shopping-intelligence and deal-hunting app, initially for **smartphones in India**. Goal: answer "what is the best deal available for MY requirements right now?", not just "did a price drop?". It turns natural-language needs into structured preferences, tracks prices across Indian retailers, keeps price history, detects genuine drops and record lows, separates guaranteed from conditional discounts, and has a fast **Hunt Mode** for sale events (for example Flipkart Big Billion Days). Browser-assisted checkout is a distant goal and always human-controlled. Details: `PROJECT.md`.
+A local-first AI shopping-intelligence and deal-hunting app, initially for **smartphones in India**. Goal: "what is the best deal available for MY requirements right now?", not just "did a price drop?" Natural-language requirements → structured preferences → deterministic rules decide anything financial; AI only interprets, classifies, summarizes, discovers, and explains. Never invents prices/discounts/specs; marks uncertainty. Full picture: `PROJECT.md`.
 
 ## 2. Current version
-- Target: **V0.1 (foundation)**.
-- Actual code version: `[UNKNOWN]`.
-- Memory layer: V0.1, created 2026-09-21.
+- Project: **V0.1**, foundation, `[BUILT]` (not yet run live — see below).
+- Memory layer: V0.1, updated 2026-09-26.
 
 ## 3. Current objective
-1. Done: create the portable project memory in `project-memory/`.
-2. Next: inspect the real repository and reconcile memory with it (T-001).
-3. Then: finish the V0.1 foundation (scope in section 6). No scraping and no checkout automation in V0.1.
+1. **Run it for real.** Follow the root `README.md`'s Setup steps on a machine with internet access, confirm it installs/starts/connects, run both test suites. This is the most important next step — see CURRENT_STATE.md for exactly what has and hasn't been checked so far.
+2. Fix whatever that surfaces; record real bugs in `BUGS.md`.
+3. Continue to V0.2 per `ROADMAP.md` only once V0.1 is confirmed working (not started automatically in this session, per its own instructions).
 
 ## 4. Completed work
-- `[VERIFIED]` User-authored Master Project Instructions exist (goals, philosophy, stack, V0.1 scope). Whether a copy is stored in the repo is `[UNKNOWN]`.
-- `[VERIFIED]` `project-memory/` created with 14 files on 2026-09-21.
-- No application code is confirmed. None was found in the memory-creation environment.
+- `[BUILT]` Backend: FastAPI app, config via environment variables, SQLite + SQLModel, a real (non-hardcoded) health/database check, full wishlist CRUD with validation, 18 pytest tests.
+- `[BUILT]` Frontend: React + TS + Vite + Tailwind dashboard — hunt input (natural language, saved as-is, plus an optional manual "exact constraints" panel), wishlist panel (create/list/delete wired to the real backend), live system-status panel (Backend/Database genuinely checked; AI/Collectors honestly static), empty-state deal feed with no fabricated data, session activity log. 8 Vitest tests.
+- `[BUILT]` Root `README.md` with full setup/run/test instructions and an honest note on what was and wasn't verifiable in the build environment.
+- Full actual file tree: `ARCHITECTURE.md` §12.
 
 ## 5. Work in progress
-- V0.1 foundation scaffold: `[UNKNOWN]` whether any of it exists.
+- Wishlist **update** (PUT) works and is tested on the backend, and the frontend hook (`useWishlists().edit()`) exists, but no UI control calls it yet — there's no edit button/form. Create, list, and delete all have working UI.
 
 ## 6. Next tasks (full list: `TODO.md`)
-1. T-001 Reconcile memory with the real repository; record the actual V0.1 status in `CURRENT_STATE.md`.
-2. V0.1 scope: repository structure · frontend shell · backend shell · database shell · configuration system (`.env.example`) · premium dashboard UI · health/status endpoint · basic wishlist model · development docs.
-3. Later phases: `ROADMAP.md` (only V0.1 is user-defined; later phases are proposals awaiting approval).
+1. Run Setup for real (see above) and report/fix anything that breaks.
+2. Add a UI trigger for wishlist editing (backend + hook already support it).
+3. V0.2 (proposed, needs approval): product/variant/observation/offer schema, price and currency parsing, price-history metrics. See `ROADMAP.md`.
 
 ## 7. Important architectural decisions (full text: `DECISIONS.md`)
-- D-001 Local-first: must run on a Windows PC; no required paid cloud backend or paid AI API.
-- D-003 AI interprets and explains; a **deterministic rule engine decides**. An LLM never triggers financial actions on free-form reasoning.
-- D-004 One isolated collector adapter per retailer, all normalizing to a common schema.
-- D-005 Never invent data; mark uncertainty; say "lowest observed in our history" unless history supports "all-time low".
-- D-006 Keep base price, guaranteed discount, conditional discount and cashback separate; show "Potential effective price" for uncertain ones.
-- D-007 Never compare non-equivalent variants (RAM, storage, condition, region) as identical.
-- D-008 Checkout security steps stay human-controlled; no CAPTCHA bypass or anti-bot circumvention; no secrets stored.
-- D-011 Project memory is vendor-independent Markdown; no vector DB or SaaS memory for now.
+V0.1-specific (new this session):
+- D-013 SQLModel (not bare SQLAlchemy); no migration tool yet (`create_all` only) — deliberate, revisit before real data is at stake.
+- D-014 Wishlist `PUT` is a partial update (only sent fields change), not a strict REST replace — documented deviation.
+- D-015 Tests live next to their code (`backend/tests/`, colocated in `frontend/src/`), not in a shared root `tests/` (which holds only a README explaining why).
+- D-016 Tailwind v3 (not v4), no Framer Motion in V0.1 — conservative choices made with no network access to verify newer tooling.
+- D-017 Dashboard palette: warm charcoal + amber accent (a deliberate Bloomberg-Terminal-style reference), with green/rust used *only* as functional price-signal colors — chosen specifically to avoid the generic "near-black + single green/vermilion accent" AI-generated-design cliché.
+
+Carried over from before code existed (still governing): D-001 local-first · D-003 AI interprets, rules decide · D-004 isolated retailer adapters · D-005 never invent data, mark uncertainty · D-006 separate price components · D-007 never compare non-equivalent variants · D-008 no CAPTCHA/anti-bot bypass, no stored secrets, human-controlled checkout · D-011 vendor-independent Markdown memory.
 
 ## 8. Known bugs and blockers
-- Bugs: none recorded. Code was not inspected, so this means `[UNKNOWN]`, not "bug-free". See `BUGS.md`.
-- Blocker: the repository was not accessible when memory was created, so code state is unverified.
-- Open architectural questions: `ARCHITECTURE.md` section 11.
+- `BUGS.md`: empty. Nothing has been run live yet, so this means "not yet tested," not "confirmed bug-free."
+- Blocker: no network access in the build environment — resolved by running Setup on a machine with internet. See `CURRENT_STATE.md` for the full inspection log of what *was* checked offline (Python syntax via `py_compile`: clean; TypeScript/TSX syntax via the TS compiler's parser: clean across 18 files; every import cross-checked to resolve).
 
 ## 9. Important files and directories
-- `project-memory/` — this memory layer. Read `AI_CONTEXT.md` (this file) first, then `CURRENT_STATE.md`.
-- Intended layout from the Master Instructions (`[UNVERIFIED]` that any of it exists; may change after architectural review): `frontend/`, `backend/`, `collectors/`, `ai/`, `deal_engine/`, `database/`, `automation/`, `notifications/`, `tests/`, `docs/`.
-- Planned: `.env.example` for configuration (no secrets committed).
+- Start here: root `README.md` (setup/run/test), then this file, then `CURRENT_STATE.md`.
+- `ARCHITECTURE.md` §12 has the full real file tree with a one-line purpose for every file.
+- `backend/app/` (FastAPI), `frontend/src/` (React dashboard), `backend/tests/` + `frontend/src/**/*.test.ts(x)` (tests).
+- `collectors/`, `ai/`, `automation/` each exist with only a README explaining their future purpose — empty on purpose, not forgotten.
+- `database/bbd_hunter.db` is created automatically at runtime; gitignored.
 
-## 10. Technology stack (preferred initial stack, D-002)
-- Frontend: React, Vite, TypeScript, Tailwind CSS, Framer Motion, Lucide icons.
-- Backend: Python, FastAPI, asyncio.
-- Database: SQLite.
-- Browser automation: Playwright.
-- Realtime: WebSockets.
-- AI: Ollama-compatible local models behind a provider abstraction.
-- Runtime target: a Windows PC, run locally.
+## 10. Technology stack (as actually built; see D-002, D-013, D-016)
+Frontend: React 18, Vite, TypeScript, Tailwind CSS v3, Lucide icons (no Framer Motion in V0.1). Backend: Python, FastAPI, SQLModel, asyncio-capable (Uvicorn). Database: SQLite, no migrations yet. Realtime: polling (`/api/health` every 15s) — WebSockets still `[PLANNED]`. AI: not wired in yet — `ai/` is an empty placeholder.
 
 ## 11. Constraints
-- Never invent prices, discounts, specs, availability or offers. Mark uncertain information as uncertain.
-- Never request or store passwords, UPI PINs, card CVVs, OTPs or authentication secrets. No CAPTCHA bypass. No anti-bot circumvention.
-- No dependency on a paid AI API. Avoid unnecessary cloud dependencies.
-- Build incrementally: explain the architecture briefly, build the smallest working version, test, fix, continue. Preserve working functionality. Do not rewrite working architecture for style.
-- The user is a beginner/intermediate developer: explain decisions in plain language, give complete files (labelled `FILE: path/to/file`), give exact install commands, and never assume a dependency is installed.
-- Code: TypeScript types, Python type hints, configuration via environment variables, tests for major components.
-- Memory: no secrets, no large code copies, follow `MEMORY_PROTOCOL.md`.
+Same as before code existed, now enforced in code where applicable: never invent prices/discounts/specs/availability/offers (the deal feed shows an honest empty state, not fake products); never request/store passwords/PINs/CVVs/OTPs/secrets (nothing of the sort exists in V0.1); no CAPTCHA bypass or anti-bot circumvention; no paid AI API dependency; build incrementally and preserve working functionality; complete files, exact install commands, explain decisions in plain language (user is beginner/intermediate); TypeScript types and Python type hints throughout; tests for major components; memory stays vendor-independent with no secrets or large code copies (see `MEMORY_PROTOCOL.md`).
 
 ## 12. Last updated
-2026-09-21 (session date) · container UTC clock read 2026-09-20T22:25Z · written by an AI agent (vendor-neutral record).
+2026-09-26, by an AI agent, from direct inspection of the repository built in this session.

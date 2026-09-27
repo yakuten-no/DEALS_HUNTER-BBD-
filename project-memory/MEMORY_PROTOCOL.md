@@ -1,7 +1,7 @@
 # BBD HUNTER — Memory Protocol
 
 > Purpose: the rules every AI coding agent (any vendor, any tool) must follow when reading or updating `project-memory/`.
-> Last updated: 2026-09-21 · Memory layer V0.1
+> Last updated: 2026-09-26 · Memory layer V0.1
 
 ## The rules
 1. Read `AI_CONTEXT.md` before starting work.
@@ -37,7 +37,7 @@
 
 ## Conventions
 - **Dates**: ISO `YYYY-MM-DD`. Use the date the user's session states. If a UTC clock differs by a day, say which one you used. **Versions**: `V0.1`, `V0.2`, and so on.
-- **Status tags**: `[VERIFIED]` confirmed by inspecting or running the repository · `[PLANNED]` intended, not built · `[UNVERIFIED]` believed, not checked · `[UNKNOWN]` no information. Never upgrade a tag without checking.
+- **Status tags**: `[VERIFIED]` confirmed by inspecting or running the repository · `[BUILT]` written and passed offline static checks (compiles/parses, imports resolve) but not yet confirmed by actually running it · `[PLANNED]` intended, not built · `[UNVERIFIED]` believed, not checked · `[UNKNOWN]` no information. Never upgrade a tag without checking. `[BUILT]` exists specifically for "I wrote this and checked what I could without running it" — a real, common state in a sandboxed environment without the target's dependencies or network access. Don't collapse it into `[VERIFIED]` (which claims more than checked) or `[UNVERIFIED]` (which claims less — that state implies no checking happened at all).
 - **IDs**: decisions `D-###`, tasks `T-###`, bugs `BUG-###`, requirements `R-V01-#`, `FR-###`, `NFR-##`, `EX-##`, `OOS-##`, open architectural questions `OQ-#`, research questions `RQ-##`. Never reuse an ID.
 - **Code references**: refer to code by path (for example `backend/app/main.py`); do not paste it.
 - **Unknowns**: say "unknown" rather than guessing. "Not found" is not the same as "does not exist".

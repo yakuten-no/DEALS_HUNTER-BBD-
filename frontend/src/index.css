@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-base text-ink font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-signal-amber/30 text-ink;
+  }
+
+  /* Visible keyboard focus everywhere, not just wherever the browser
+     default happens to show it. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-signal-amber ring-offset-2 ring-offset-base;
+  }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

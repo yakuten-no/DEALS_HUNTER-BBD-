@@ -1,79 +1,48 @@
-# ==============================
-# SECRETS / ENVIRONMENT
-# ==============================
+# === Secrets & environment ===
+# Never commit real .env files -- only .env.example files are tracked.
 .env
 .env.*
 !.env.example
-
-# API keys / credentials
-*.key
 *.pem
-credentials.json
-secrets.json
+*.key
 
-# ==============================
-# PYTHON
-# ==============================
+# Anything that could hold session/auth state for a future browser-automation
+# collector. Nothing here yet in V0.1, but the rule is set from day one.
+**/browser-sessions/
+**/*.session.json
+**/cookies.json
+
+# === Python (backend) ===
 __pycache__/
 *.py[cod]
+*.egg-info/
 .venv/
 venv/
-env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# ==============================
-# NODE / REACT
-# ==============================
+# === Node (frontend) ===
 node_modules/
-dist/
-build/
+frontend/dist/
+frontend/dist-ssr/
+*.local
 .vite/
 
-# ==============================
-# IDE
-# ==============================
-.vscode/
-.idea/
+# === Database ===
+# The SQLite file is local runtime data, not source -- see database/README.md.
+database/*.db
+database/*.db-journal
+database/*.db-wal
+database/*.db-shm
 
-# ==============================
-# OPERATING SYSTEM
-# ==============================
+# === Editors / OS ===
+.vscode/*
+!.vscode/extensions.json
+.idea/
 .DS_Store
 Thumbs.db
 
-# ==============================
-# LOGS
-# ==============================
+# === Logs ===
 *.log
-
-# ==============================
-# DATABASES
-# ==============================
-*.db
-*.sqlite
-*.sqlite3
-
-# ==============================
-# PLAYWRIGHT
-# ==============================
-playwright-report/
-test-results/
-
-# ==============================
-# TEMPORARY FILES
-# ==============================
-*.tmp
-*.temp
-
-# ==============================
-# LOCAL AI MODELS
-# ==============================
-models/
-
-# ==============================
-# BROWSER SESSIONS / COOKIES
-# ==============================
-browser-data/
-playwright-data/
-sessions/
-cookies/
-storage/
+npm-debug.log*

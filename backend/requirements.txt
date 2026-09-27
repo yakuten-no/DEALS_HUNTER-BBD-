@@ -1,0 +1,24 @@
+# BBD Hunter backend dependencies.
+#
+# Versions are minimums (`>=`), not exact pins: this file was written in a
+# sandboxed environment with no network access, so exact current release
+# numbers could not be verified against PyPI. `pip install -r
+# requirements.txt` will resolve the latest compatible versions. If you
+# want fully reproducible installs later, run `pip freeze > requirements.lock.txt`
+# after a successful install.
+
+# --- Web framework ---
+fastapi>=0.115
+uvicorn[standard]>=0.30
+
+# --- Data / validation ---
+pydantic>=2.7
+pydantic-settings>=2.3
+python-dotenv>=1.0
+
+# --- Database ---
+sqlmodel>=0.0.22
+
+# --- Testing ---
+pytest>=8.0
+httpx>=0.27
