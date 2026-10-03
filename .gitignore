@@ -28,6 +28,7 @@ frontend/dist/
 frontend/dist-ssr/
 *.local
 .vite/
+*.tsbuildinfo
 
 # === Database ===
 # The SQLite file is local runtime data, not source -- see database/README.md.

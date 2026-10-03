@@ -1,71 +1,81 @@
 # BBD HUNTER — Requirements
 
 > Purpose: functional and non-functional requirements, separated into implemented / planned / experimental / explicitly out of scope.
-> Last updated: 2026-09-26 · Memory layer V0.1
-> Source: the Master Project Instructions and the Project Memory Layer V0.1 brief. The split into "planned" vs "experimental" is a **proposed classification** (the user has not labelled anything experimental) — confirm or change it.
+> Last updated: 2026-10-01 · Memory layer V0.1
+> Source: the Master Project Instructions, the Project Memory Layer V0.1 brief, the V0.1 implementation brief, and the V0.2 (Product & Deal Data Foundation) brief. The split into "planned" vs "experimental" is a **proposed classification** (the user has not labelled anything experimental) — confirm or change it.
 
-Status tags: `[VERIFIED]` confirmed by actually running it · `[BUILT]` written and passed offline static checks but not yet run live · `[PLANNED]` intended, not built · `[UNVERIFIED]` believed, not checked · `[UNKNOWN]` no information (see `MEMORY_PROTOCOL.md`).
+Status tags: `[VERIFIED]` confirmed by actually running it · `[BUILT]` written and passed offline static checks but not yet run live · `[PLANNED]` intended, not built · `[PARTIAL]` some of the requirement is built, some isn't — see the note · `[UNVERIFIED]` believed, not checked · `[UNKNOWN]` no information (see `MEMORY_PROTOCOL.md`).
 
 ## 1. Implemented
-**Still none formally `[VERIFIED]`** — nothing has been run live yet (see `CURRENT_STATE.md`). V0.1's scope (2.1 below) is now `[BUILT]`: written and passed offline static checks (Python syntax, TypeScript/TSX syntax, cross-file import resolution), but not yet confirmed by actually installing and running it. Move items from 2.1 to this section once a live run confirms them — that's TODO T-003.
+### V0.1 scope — `[VERIFIED]` (user-confirmed running, 2026-09-29)
+| ID | Requirement | Where |
+|---|---|---|
+| R-V01-1 | Repository structure | see `ARCHITECTURE.md` §12 for the real tree |
+| R-V01-2 | Frontend shell | `frontend/` |
+| R-V01-3 | Backend shell | `backend/app/main.py` |
+| R-V01-4 | Database shell | `backend/app/database.py`, `database/` |
+| R-V01-5 | Configuration system (environment variables, `.env.example`) | `backend/app/config.py`, `backend/.env.example`, `frontend/.env.example` |
+| R-V01-6 | Premium dashboard UI | `frontend/src/App.tsx` and `frontend/src/components/`; design reasoning in D-017 |
+| R-V01-7 | Health/status endpoint | `backend/app/routers/health.py` — a real DB check, not hardcoded |
+| R-V01-8 | Basic wishlist model | `backend/app/models/wishlist.py`, more than "basic" (full CRUD) |
+| R-V01-9 | Development documentation | root `README.md` |
 
-Implemented outside the application: `project-memory/` (this memory layer), first created 2026-09-21, updated 2026-09-26.
+Implemented outside the application: `project-memory/` (this memory layer), first created 2026-09-21, updated 2026-09-26 and 2026-09-29.
 
 ## 2. Planned
 
-### 2.1 V0.1 scope (defined by the user) — now `[BUILT]`, pending a live run (T-003)
+### 2.1 V0.2 scope (defined by the user) — `[VERIFIED]` by a real test run on 2026-10-01 (Linux sandbox; Windows re-run pending, T-005)
 | ID | Requirement | Status | Where |
 |---|---|---|---|
-| R-V01-1 | Repository structure | `[BUILT]` | see `ARCHITECTURE.md` §12 for the real tree |
-| R-V01-2 | Frontend shell | `[BUILT]` | `frontend/` |
-| R-V01-3 | Backend shell | `[BUILT]` | `backend/app/main.py` |
-| R-V01-4 | Database shell | `[BUILT]` | `backend/app/database.py`, `database/` |
-| R-V01-5 | Configuration system (environment variables, `.env.example`) | `[BUILT]` | `backend/app/config.py`, `backend/.env.example`, `frontend/.env.example` |
-| R-V01-6 | Premium dashboard UI | `[BUILT]` | `frontend/src/App.tsx` and `frontend/src/components/`; design reasoning in D-017 |
-| R-V01-7 | Health/status endpoint | `[BUILT]` | `backend/app/routers/health.py` — a real DB check, not hardcoded |
-| R-V01-8 | Basic wishlist model | `[BUILT]`, more than "basic" (full CRUD) | `backend/app/models/wishlist.py` |
-| R-V01-9 | Development documentation | `[BUILT]` | root `README.md` |
+| R-V02-1 | Core domain model (Retailer, Product, ProductVariant, RetailerListing, PriceObservation, Offer) | `[VERIFIED]` | `backend/app/models/` |
+| R-V02-2 | Deterministic deal assessment | `[VERIFIED]` | `backend/app/deal_engine/` |
+| R-V02-3 | Deterministic product-name normalization | `[VERIFIED]` | `backend/app/normalization.py` |
+| R-V02-4 | API endpoints for all six new entities + deal assessment | `[VERIFIED]` | `backend/app/routers/` |
+| R-V02-5 | Frontend Data Explorer | `[VERIFIED]` (jsdom tests + build; not yet browser-tested) | `frontend/src/components/explorer/` |
+| R-V02-6 | Optional, clearly-labelled demo/fixture data | `[VERIFIED]` | `backend/scripts/seed_demo_data.py` |
+| R-V02-7 | Tests (database/model, normalization, deal engine, API) | `[VERIFIED]` | `backend/tests/` — 115 total, all passing (18 V0.1 + 81 V0.2 + 16 regression) |
+| R-V02-8 | Preserve all existing V0.1 functionality and tests | `[VERIFIED]` — all V0.1 tests pass | every V0.1 file except the 4 deliberately touched (see `CHANGELOG.md`) |
 
-Not in V0.1: full scraping, checkout automation. Neither was implemented — confirmed true.
+Not in V0.2: retailer scraping, AI/Ollama integration, checkout/CAPTCHA/OTP/payment automation. None were implemented — confirmed true.
 
 ### 2.2 Functional requirements (phase TBD unless stated)
 
 **Understanding requirements**
-- FR-101 Convert natural-language requirements into structured preferences (budget target and maximum, minimum storage, RAM preference, camera / gaming / battery priority, wireless-charging preference, software preference, brand preference).
-- FR-102 Validate AI output against a schema before use. Enforce explicit constraints (maximum price, minimum storage, required variant, availability, seller conditions) in a deterministic rule engine.
+- FR-101 `[PLANNED]` Convert natural-language requirements into structured preferences (budget target and maximum, minimum storage, RAM preference, camera / gaming / battery priority, wireless-charging preference, software preference, brand preference). *(V0.1's wishlist form does this manually, by the human typing into structured fields -- no AI parsing exists yet.)*
+- FR-102 `[PARTIAL]` Validate AI output against a schema before use — n/a yet, no AI output exists. Enforce explicit constraints in a deterministic rule engine — `[BUILT]` for one listing at a time, on request (`app/deal_engine/assess_deal`, checked against an explicitly-passed wishlist's budget), `[PLANNED]` as an automated scan of the whole database against a wishlist's full constraint set (storage, variant, availability, seller conditions aren't checked by the deal engine yet, only budget — see T-062).
 
 **Collection and discovery**
-- FR-110 Discover relevant smartphones across Indian retailers (Flipkart, Amazon, Croma, Reliance, Vijay Sales, generic).
-- FR-111 One collector adapter per retailer, normalizing to a common schema, isolated from the rest of the app.
-- FR-112 Prefer exact product URLs and identifiers over broad scans.
+- FR-110 `[PLANNED]` Discover relevant smartphones across Indian retailers. No collectors exist.
+- FR-111 `[PLANNED]` One collector adapter per retailer, normalizing to a common schema. The common schema now exists (`app/models/`) for a collector to target; no collector exists yet.
+- FR-112 `[PLANNED]` Prefer exact product URLs and identifiers over broad scans. N/A without a collector.
 
 **Price intelligence**
-- FR-120 Store observations: product, variant, seller, retailer, price, MRP (if available), timestamp, availability, relevant offer information.
-- FR-121 Calculate current, lowest, highest and average price, recent average, 7/30/90-day lows, percentage change, and distance from historical low.
-- FR-122 Detect genuine price drops and record lows. Claim "all-time low" only when stored history supports it; otherwise say "lowest observed in our history".
-- FR-123 Never treat an advertised MRP discount as proof of a genuine deal.
+- FR-120 `[BUILT]` Store observations: product, variant, seller, retailer, price, MRP (if available), timestamp, availability, relevant offer information. → `PriceObservation` + `RetailerListing` (seller/availability live on the listing, which every observation is scoped to).
+- FR-121 `[PARTIAL]` Current, lowest, highest and average price — `[BUILT]`. Recent average, 7/30/90-day lows, percentage change, and distance from historical low — `[PLANNED]` (OQ-4 in `ARCHITECTURE.md`; V0.2's `price_dropped_from_previous_observation` and `lowest_observed_in_history` cover "better/worse than before" without these specific windowed metrics).
+- FR-122 `[BUILT]` Detect genuine price drops and record lows, with the exact required wording. Tested in `test_deal_engine.py::test_never_claims_all_time_low_wording`.
+- FR-123 `[BUILT]` MRP discount is surfaced as a caveat only, never as evidence. Tested in `test_mrp_discount_alone_is_labelled_a_caveat_not_a_reason`.
 
 **Deal engine**
-- FR-130 Separate base price, guaranteed discount, conditional discount and cashback.
-- FR-131 Show "Potential effective price" when conditions are not guaranteed. Never auto-subtract uncertain cashback.
-- FR-132 Identify available discounts and offers, and classify each as guaranteed or conditional.
-- FR-133 Explain why a deal matches the user's preferences (an explanation layered on a deterministic result).
+- FR-130 `[BUILT]` Separate base price, guaranteed discount, conditional discount and cashback. → `DealAssessment`'s four separate totals.
+- FR-131 `[BUILT]` "Potential effective price" shown only when meaningful; cashback never auto-subtracted, even when the cashback offer itself is guaranteed. Tested in `test_cashback_is_never_netted_into_effective_price`.
+- FR-132 `[BUILT]` `Offer.is_guaranteed` classifies every offer.
+- FR-133 `[PARTIAL]` The deal engine explains its signals in plain language (`reasons`/`caveats`), and checks wishlist budget specifically when given a `wishlist_id` — `[BUILT]` for that scope. Matching against the *rest* of a wishlist's preferences (camera/gaming/battery priority, storage minimum, brand, software) is `[PLANNED]` — not yet part of the deal engine's inputs.
 
 **Product normalization and phone intelligence**
-- FR-140 Distinguish model, variant, RAM, storage, color, seller, region, warranty and new/refurbished/open-box status.
-- FR-141 Never compare non-equivalent variants (for example 8GB/128GB vs 12GB/256GB) as identical.
-- FR-142 Track phone specifications where available (field list in `KNOWLEDGE/phone-data.md`).
-- FR-143 Normalize specifications between manufacturers.
+- FR-140 `[PARTIAL]` Model, variant, RAM, storage, color, seller — `[BUILT]`. Region, warranty, and new/refurbished/open-box status — `[PLANNED]`, not yet fields on `ProductVariant` (T-061).
+- FR-141 `[BUILT]` Tested explicitly in `test_different_configs_do_not_collapse_into_one_variant`.
+- FR-142 `[PLANNED]` Track phone specifications (SoC, display, camera, etc.) — not part of V0.2; `Product.description` is free text only.
+- FR-143 `[PARTIAL]` `app/normalization.py` normalizes product *names/titles* into brand/RAM/storage/color — `[BUILT]`, deliberately basic (pattern matching, not fuzzy/semantic — see its own docstring). Normalizing *specifications* between manufacturers (e.g. reconciling how two brands describe the same charging speed) is a different, larger task and is `[PLANNED]`.
 
 **Wishlist, changes and notifications**
-- FR-160 Wishlist of exact targets with deterministic conditions.
-- FR-161 Track price, offer and stock changes and newly discovered products.
-- FR-162 Notify the user when configured conditions are met.
+- FR-160 `[PARTIAL]` Wishlist of *preferences* with deterministic conditions — `[BUILT]` since V0.1. Wishlist of *exact targets* (linked to a specific Product/ProductVariant) — `[PLANNED]`, still open (OQ-3's matching question, T-062).
+- FR-161 `[PLANNED]` Track price, offer and stock changes and newly discovered products *over time*. V0.2's Data Explorer shows current state and full price history on request, but nothing watches for and records *changes* as events yet — no events/notifications system exists.
+- FR-162 `[PLANNED]` Notify the user when configured conditions are met. No notification delivery exists.
 
 **Modes and UI**
-- FR-170 Normal Mode: personalized deal feed, wishlist, price history, discoveries, price/offer/stock changes, recently discovered products, AI explanations.
-- FR-171 Hunt Mode: speed; exact wishlist targets; price, stock and variant-availability changes; deal triggers; immediate notifications; minimal UI activity; only actionable events.
-- FR-172 Live dashboard updates over WebSockets.
+- FR-170 `[PARTIAL]` Wishlist, price history (Data Explorer, browsed manually) — `[BUILT]`. Personalized deal feed, discoveries, price/offer/stock *change* tracking, AI explanations — `[PLANNED]`.
+- FR-171 `[PLANNED]` Hunt Mode. No UI for it exists.
+- FR-172 `[PLANNED]` Live dashboard updates over WebSockets. V0.1's health check still polls every 15s; V0.2's Data Explorer is fetch-on-navigation, not live-updating.
 
 ### 2.3 Non-functional requirements
 - NFR-01 Local-first: runs on a Windows PC with no paid cloud backend; external services optional.

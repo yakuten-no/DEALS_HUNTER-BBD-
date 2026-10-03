@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App";
 import * as api from "./lib/api";
 
@@ -16,6 +16,10 @@ describe("App", () => {
       database: "connected",
     });
     vi.mocked(api.listWishlists).mockResolvedValue([]);
+    // Only reached if a test switches to the Data Explorer tab -- harmless
+    // to configure unconditionally for tests that never do.
+    vi.mocked(api.listProducts).mockResolvedValue([]);
+    vi.mocked(api.listRetailers).mockResolvedValue([]);
   });
 
   it("renders the BBD Hunter branding", () => {
@@ -57,5 +61,18 @@ describe("App", () => {
     render(<App />);
     expect(screen.getByText("Not connected")).toBeTruthy();
     expect(screen.getByText("Not running")).toBeTruthy();
+  });
+
+  it("switches to the Data Explorer when its tab is clicked, and back again", () => {
+    render(<App />);
+    expect(screen.getByPlaceholderText(/great camera/i)).toBeTruthy(); // dashboard view by default
+
+    fireEvent.click(screen.getByRole("button", { name: "Data Explorer" }));
+    // Disambiguated from the still-visible tab button of the same name via role.
+    expect(screen.getByRole("heading", { name: "Data Explorer" })).toBeTruthy();
+    expect(screen.queryByPlaceholderText(/great camera/i)).toBeNull(); // dashboard content is gone, not just hidden
+
+    fireEvent.click(screen.getByRole("button", { name: "Dashboard" }));
+    expect(screen.getByPlaceholderText(/great camera/i)).toBeTruthy();
   });
 });

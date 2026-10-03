@@ -13,6 +13,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -38,6 +39,16 @@ def session_fixture():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+
+    # Match production (app/database.py): SQLite only enforces foreign keys
+    # when this pragma is on for each connection, so without it the test
+    # database would be more permissive than the real one.
+    @event.listens_for(engine, "connect")
+    def _enable_foreign_keys(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         yield session

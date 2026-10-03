@@ -13,6 +13,7 @@ database/bbd_hunter.db and let it regenerate; a real migration tool
 from collections.abc import Generator
 from pathlib import Path
 
+from sqlalchemy import event
 from sqlmodel import Session, SQLModel, create_engine
 
 from app.config import settings
@@ -48,12 +49,36 @@ _connect_args = {"check_same_thread": False} if settings.database_url.startswith
 engine = create_engine(settings.database_url, echo=settings.debug, connect_args=_connect_args)
 
 
+# SQLite does not enforce foreign keys by default -- without this, an
+# invalid foreign key (e.g. a ProductVariant pointing at a product_id that
+# doesn't exist) would silently succeed at the database level. Each
+# service function already checks referenced ids explicitly and raises a
+# friendly error before that could happen (see app/services/errors.py),
+# but this is a real safety net underneath that, not a duplicate of it --
+# it also catches anything a future code path forgets to check.
+if settings.database_url.startswith("sqlite"):
+
+    @event.listens_for(engine, "connect")
+    def _enable_sqlite_foreign_keys(dbapi_connection, connection_record) -> None:
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+
 def init_db() -> None:
     """Create any tables that don't exist yet, based on registered models."""
     # Imported here (not at module load time) so that every model module
     # is registered on SQLModel.metadata before create_all runs, without
     # creating a circular import between database.py and the models.
-    from app.models import wishlist  # noqa: F401
+    from app.models import (  # noqa: F401
+        offer,
+        price_observation,
+        product,
+        product_variant,
+        retailer,
+        retailer_listing,
+        wishlist,
+    )
 
     SQLModel.metadata.create_all(engine)
 

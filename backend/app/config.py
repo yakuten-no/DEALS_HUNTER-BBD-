@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
     # --- General ---
     app_name: str = "bbd-hunter"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     environment: str = "development"  # "development" or "production"
     debug: bool = True
 

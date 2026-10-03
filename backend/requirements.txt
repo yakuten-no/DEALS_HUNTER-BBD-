@@ -17,7 +17,11 @@ pydantic-settings>=2.3
 python-dotenv>=1.0
 
 # --- Database ---
-sqlmodel>=0.0.22
+# sqlmodel >=0.0.47: verified version. The datetime convention (timezone-aware
+# UTC, see app/utils.py) relies on SQLModel's UTCDateTime column type, which
+# returns aware datetimes even from SQLite. Older releases used a plain
+# DateTime column and would silently hand back naive values.
+sqlmodel>=0.0.47
 
 # --- Testing ---
 pytest>=8.0

@@ -1,40 +1,46 @@
 # BBD HUNTER — Roadmap
 
 > Purpose: planned development phases. Near-term work is kept separate from future ideas.
-> Last updated: 2026-09-26 · Memory layer V0.1
-> Only **V0.1** is defined by the user. Phases after V0.1 are a **draft ordering** derived from the Master Instructions and need the user's approval (TODO T-040).
+> Last updated: 2026-09-29 · Memory layer V0.1
+> **V0.1 and V0.2 are defined by the user (done).** Phases after V0.2 are a **draft ordering** derived from the Master Instructions and need the user's approval (TODO T-040) — see the note on V0.3 below in particular, which offers a choice rather than presupposing one.
 
 ## Principles for sequencing
 - Foundation first; then data and price logic; then live collection; then AI; then Hunt Mode and notifications. (Draft.)
 - Each phase follows the workflow in D-010: brief architecture note, smallest working version, tests, fixes, next.
 - Preserve working functionality. Never replace working architecture for style.
 
-## Now
+## Done
 
 ### V0.1 — Foundation (defined by the user)
 - **Scope**: repository structure · frontend shell · backend shell · database shell · configuration system · premium dashboard UI · health/status endpoint · basic wishlist model · development documentation.
-- **Out of scope**: full scraping, checkout automation. Neither was built — confirmed true.
-- **Status**: `[BUILT]`, 2026-09-26 — written and passed offline static checks, but not yet confirmed by an actual run (no network access in the build environment; see `CURRENT_STATE.md`). Running it for real is TODO T-003, the top open item right now.
-- **Acceptance criteria** (updated from "proposed" now that the scope is built; still to be *confirmed*, not yet confirmed): frontend and backend start with documented commands (Windows and macOS/Linux both given in the root `README.md`); the health/status endpoint responds with a real database check; a wishlist item can be created and persisted in SQLite; `.env.example` files exist for both backend and frontend and no secrets are committed; the dashboard renders with a working hunt input, wishlist panel, live system status, honest empty deal feed, and activity log; 18 backend + 8 frontend tests exist and are expected to pass once actually run.
+- **Status**: `[VERIFIED]` — user-confirmed running (2026-09-29). 18 backend + 8 frontend tests.
 
-## Next (draft, not yet approved)
+### V0.2 — Product & Deal Data Foundation (defined by the user)
+- **Scope**: the full product/deal data model (Retailer, Product, ProductVariant, RetailerListing, PriceObservation, Offer) with real constraints; deterministic deal assessment; deterministic product-name normalization; API endpoints for all of it; a frontend Data Explorer; optional clearly-labelled demo data; tests. *(This single phase turned out to cover what an earlier draft of this roadmap had split across two future phases — see the git-free note in `CHANGELOG.md`'s 2026-09-29 entry for exactly what was built.)*
+- **Out of scope**: retailer scraping, AI/Ollama integration, checkout/CAPTCHA/OTP/payment automation. None were built — confirmed true.
+- **Status**: `[BUILT]`, 2026-09-29 — written and passed offline static checks, not yet confirmed by an actual run (same situation V0.1 was in before it was verified; see `CURRENT_STATE.md`). Running it for real is TODO T-005, the top open item right now.
+- **Acceptance criteria** (status 2026-10-01: automated criteria **met in a Linux sandbox** — `pytest` 115 passed, `npm test` 14 passed, `npm run build` succeeded; still to confirm on Windows and in a real browser, T-005): `pytest` passes all backend tests (115); `npm test` passes all 14 frontend tests; the Data Explorer loads and, after running the optional seed script, shows a browsable product → variants → listings → history/offers/deal-signals drill-down with no fabricated data anywhere; the six named deal-engine scenarios behave as documented.
 
-### V0.2 — Data model and price-intelligence core
-Product / variant / seller / retailer / listing / observation / offer schema; price and currency parsing; variant matching and normalization; price-history metrics (current, lowest, highest, average, recent average, 7/30/90-day lows, percentage change, distance from low); tests. Data comes from fixtures or manual entry, with no live collectors yet. Decisions needed: variant identity key (OQ-3), "recent average" window (OQ-4), migration approach (OQ-5).
+## Next — needs the user's decision (TODO T-040)
 
-### V0.3 — Deal engine and rule engine
-Base / guaranteed / conditional / cashback separation; potential effective price; deterministic wishlist rules (maximum price, minimum storage, required variant, availability, seller conditions); genuine-drop and record-low detection with honest wording; tests.
+Three reasonable directions exist from here, each unlocking something different. This roadmap doesn't presuppose which one is V0.3 — that's an open choice, not a default:
 
-## Later (draft)
+### Option A — First retailer collector
+Real data flowing in for the first time, rather than manual/demo entry. Needs the retailer research first (`KNOWLEDGE/retailers.md`, RQ-02, RQ-03 — terms of service and robots.txt review), plus OQ-2 (scheduling) and OQ-7 (session handling without storing secrets) decided. Highest-value for making the app actually useful day to day; also the riskiest (external dependencies, a live site's behavior to handle gracefully).
 
-### V0.4 — First collector and live updates
-First retailer adapter writing to the common schema; background worker and scheduling; WebSocket live updates; persistent browser-session handling. Needs the retailer research first (`KNOWLEDGE/retailers.md`), including terms of service and the no-circumvention rule, plus OQ-2 and OQ-7.
+### Option B — AI layer
+Provider abstraction with an Ollama-compatible provider; natural-language wishlist parsing (FR-101) with schema validation; explanations of why a deal matches (extending FR-133 beyond budget-only); review analysis. Highest-value for the "AI shopping intelligence" part of the product vision; doesn't need real collected data to be useful (works fine against demo/manually-entered data).
 
-### V0.5 — AI layer
-Provider abstraction with an Ollama-compatible provider; natural language to structured preferences with schema validation; explanations of why a deal matches; AI output-validation tests.
+### Option C — Wishlist-to-product matching (finish OQ-3 / T-062)
+Link a wishlist entry to specific products/variants it's shopping for, and let the deal engine scan for matches automatically instead of taking an ad hoc `wishlist_id` per request. Unlocks FR-160/161 (discovery, change tracking) and is a prerequisite for a real "personalized deal feed" (FR-170). Smaller in scope than A or B; a reasonable "finish what V0.2 started" option.
 
-### V0.6 — Notifications and Hunt Mode
-Notification delivery; Hunt Mode (speed, exact targets, stock/variant triggers, immediate alerts, minimal UI). Needs OQ-6 and OQ-8.
+## Later (draft, unaffected by which option above comes first)
+
+### Notifications and Hunt Mode
+Notification delivery; Hunt Mode (speed, exact targets, stock/variant triggers, immediate alerts, minimal UI). Needs OQ-6 and OQ-8, and realistically needs at least one of Options A/B/C done first (nothing to notify about without real data, matching, or both).
+
+### WebSocket live updates
+Replace V0.1's 15-second polling with pushed updates once there's something worth pushing (a live collector or a background matching process).
 
 ## Future ideas (unscheduled)
 - More retailers (Amazon, Croma, Reliance, Vijay Sales, generic adapter).
