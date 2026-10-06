@@ -36,6 +36,11 @@ export function useFetch<T>(fetchFn: (() => Promise<T>) | null, deps: Dependency
     }
 
     let cancelled = false;
+
+    // New request: drop the previous result now, so data fetched for the
+    // old deps is never shown while this one loads, or after it fails.
+    setData(null);
+
     setLoading(true);
     setError(null);
 
